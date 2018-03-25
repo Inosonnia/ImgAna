@@ -3,6 +3,8 @@ import os, glob
 import sys
 import commands
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
+import matplotlib.pyplot as plt
+import numpy as np
 import string
 import random
 import time
@@ -80,6 +82,7 @@ def writeBoxesToFile(filePath, boxes, tp):
     file_object.writelines(lines)
     file_object.close( )
 
+
 def file_extension(path): 
     return os.path.splitext(path)[1] 
 
@@ -97,18 +100,292 @@ def copy_file_to(srcDir, targdir, fname):
 
 
 def ImgAna(filepath):
+
+    imgWidth = []
+    imgHeight = []
     for fname in get_ext_files(filepath, '.jpg'): # only support jpg
+        if not os.path.exists(os.path.join(filepath, file_name(fname) + '.jpg')):
+            print "These does not exist such a img !"
+            sys.exit(1)
 
+        image = Image.open(os.path.join(filepath, file_name(fname) + '.jpg')).convert('RGB')
 
+        imgsp = np.shape(image)
+        imgWidth.append(imgsp[ 0 ])
+        imgHeight.append(imgsp[ 1 ])
+
+    print np.shape(imgWidth)
+
+    plt.figure(1)
+    plt.scatter(imgWidth, imgHeight)
+    plt.title("Image size distribution")
+    plt.xlabel("Image width (Unit: pixel)")
+    plt.ylabel("Image height (Unit: pixel)")
+    plt.xlim(0, 4000)
+    plt.ylim(0, 3000)
+    plt.legend(loc = 'upper right')
+    # plt.show()
+
+    plt.savefig('ImgInfo.pdf',dpi=150)
+    # print imgWidth, imgHeight
+    # image.show() 
 
 def BboxAna(filepath):
+
+    bboxWidth = []
+    bboxHeight = []
+    bboxCenterx = []
+    bboxCentery = []
+    bboxScaleRatio = []
+
+    height_count = {}
+
+    for fname in get_ext_files(filepath, '.rec'): # only support jpg
+        if not os.path.exists(os.path.join(filepath, file_name(fname) + '.rec')):
+            print "These does not exist such a img annotation !"
+            sys.exit(1)
+
+        gt_file = open(os.path.join(filepath, file_name(fname) + '.rec'))
+        gtlines = gt_file.readlines()
+        for line in gtlines:
+            # print line
+            words = line.strip().split(' ')
+            wordsLen = len(words)
+            
+            if wordsLen < 6:
+                print "Error annotation in " + fname
+                sys.exit(1)
+            
+            content = " ".join(i for i in words[:-5])
+            xmin = int(words[-5])
+            xmax = int(words[-3])
+            ymin = int(words[-4])
+            ymax = int(words[-2])
+            label = int(words[-1])
+
+            bboxwidth = xmax - xmin
+            bboxheight = ymax - ymin
+            bboxcenterx = (xmax - xmin) / 2
+            bboxcentery = (ymax - ymin) / 2
+            bboxscaleratio = float(bboxwidth) / float(bboxheight)
+
+            bboxWidth.append(bboxwidth)
+            bboxHeight.append(bboxheight)
+            bboxCenterx.append(bboxcenterx)
+            bboxCentery.append(bboxcentery)
+            bboxScaleRatio.append(bboxscaleratio)
+
+
+            bbox_height_scale = bboxheight / 16
+
+
+            if bbox_height_scale not in height_count:
+                height_count [ bbox_height_scale ] = 1
+            else:
+                height_count[ bbox_height_scale ] = height_count[ bbox_height_scale ] + 1                
+
+    print "Height scale distribution: ", height_count
+
+
+    # fig,(ax0, ax1, ax2) = plt.subplots(nrows=3)  
+    # # plt.subplots(nrows=3,figsize=(9,6)) 
+    # ax0.scatter(bboxWidth, bboxHeight)
+    # # plt.title("bbox size distribution")
+    # plt.xlabel("bbox width (Unit: pixel)")
+    # plt.ylabel("bbox height (Unit: pixel)")
+    # plt.xlim(0, 2000)
+    # plt.ylim(0, 2000)
+    # # plt.legend(loc = 'upper right')
+    # plt.savefig('BboxSizeInfo.pdf',dpi=150)
+
+    # ax1.scatter(bboxCenterx, bboxCentery)
+    # # plt.title("bbox size distribution")
+    # plt.xlabel("bbox center location (Unit: pixel)")
+    # plt.ylabel("bbox center location (Unit: pixel)")
+    # plt.xlim(0, 1000)
+    # plt.ylim(0, 1000)
+    # # plt.legend(loc = 'upper right')
+    # plt.savefig('BboxCenterInfo.pdf',dpi=150)
+
+    # # ax2.hist(bboxScaleRatio,40,normed=1,histtype='bar',facecolor='yellowgreen',alpha=0.75)  
+    # plt.hist(bboxScaleRatio,40,normed=1,histtype='bar',facecolor='yellowgreen',alpha=0.75)  
+    # # plt.title("bbox scale distribution")
+    # # plt.xlabel("bbox width (Unit: pixel)")
+    # # plt.ylabel("bbox height (Unit: pixel)")
+    # # plt.xlim(0, 4000)
+    # # plt.ylim(0, 3000)
+    # plt.legend(loc = 'upper right')
+    # plt.show()
+    # plt.savefig('BboxScaleInfo.pdf',dpi=150)
+
+
+def ErrorAna(filepath, sav_log):
+    writer = open(sav_log, 'w')
+    height_count = {} # store the height distribution
+    for fname in get_ext_files(filepath, '.rea'): # only support rea
+        print "reading ", fname, ' ...'
+        if not os.path.exists(os.path.join(filepath, file_name(fname) + '.rea')):
+            print "These does not exist such a img error annotation !"
+            sys.exit(1)
+
+        gt_file = open(os.path.join(filepath, file_name(fname) + '.rea'))
+        gtlines = gt_file.readlines()
+
+        error_type = "Failed"
+
+        for line in gtlines:
+            # print line
+            words = line.strip().split(' ')
+            wordsLen = len(words)
+            
+            if wordsLen < 6:
+                print "No error annotation in " + fname
+                sys.exit(1)
+
+            content = " ".join(i for i in words[:-5])
+            xmin = int(words[-5])
+            xmax = int(words[-3])
+            ymin = int(words[-4])
+            ymax = int(words[-2])
+            label = int(words[-1])
+
+            bboxwidth = xmax - xmin
+
+            if bboxwidth == 0:
+                error_type = "Missed"
+
+            if bboxwidth != 0:
+                bboxheight = ymax - ymin
+                bboxcenterx = (xmax - xmin) / 2
+                bboxcentery = (ymax - ymin) / 2
+                bboxscaleratio = float(bboxwidth) / float(bboxheight)
+
+                print fname, "bbox height: ", bboxheight, " label: ", label, " Error type: ", error_type
+                
+                writer.write(str(fname) + "bbox height: " + str(bboxheight) + " label: " + str(label) + " Error type: " + str(error_type) + '\n')
+
+                bbox_height_scale = bboxheight / 16
+
+
+                if bbox_height_scale not in height_count:
+                    height_count [ bbox_height_scale ] = 1
+                else:
+                    height_count[ bbox_height_scale ] = height_count[ bbox_height_scale ] + 1                
+
+
+    print "Err Height scale distribution: ", height_count
+
+
+def WatchSingleImg(filename, evalFlag): # check the img status / bbox status of a single img
+    '''
+    evalFlag: If evaluation result is needed
+    '''
+    with open(filename) as curImg:
+        if not os.path.exists(filename + '.jpg'):
+            print "These does not exist such a img !"
+            sys.exit(1)
+
+    image = Image.open(filename + '.jpg').convert('RGB')
+    imgsp = np.shape(image)
+    imgWidth.append(imgsp[ 0 ])
+    imgHeight.append(imgsp[ 1 ])
+
+
+    if evalFlag == 1:
+        get_error_box_result(filename)
+
+
+
+
+def get_error_box_result(filename):
+    # print fname
+    # if fname == "v3_test_136.recc":
+    #     pass
+    # else:
+    #     continue
+
+    with open(filename) as rt_file:
+        if not os.path.exists(filename):
+            print "These does not exist such a img result !"
+            sys.exit(1)
+
+        gt_file = open(fname)
+        gtlines = gt_file.readlines()
+        rtlines = rt_file.readlines()
+
+        gtboxes = []
+        for line in gtlines:
+            # print line
+            words = line.strip().split(' ')
+            wordsLen = len(words)
+            
+            if wordsLen < 6:
+                continue
+            
+            content = " ".join(i for i in words[:-5])
+            xmin = int(words[-5])
+            xmax = int(words[-3])
+            ymin = int(words[-4])
+            ymax = int(words[-2])
+            label = int(words[-1])
+            gtboxes.append(Box((content, xmin, ymin, xmax, ymax, label)))
+
+        rtboxes = []
+        for line in rtlines:
+            words = line.strip().split(' ')
+            wordsLen = len(words)
+            
+            if wordsLen < 6:
+                continue
+            
+            content = " ".join(i for i in words[:-5])
+            xmin = int(words[-5])
+            xmax = int(words[-3])
+            ymin = int(words[-4])
+            ymax = int(words[-2])
+            label = int(words[-1])
+
+            rtboxes.append(Box((content, xmin, ymin, xmax, ymax, label)))
+
+
+        gtsize = np.shape(gtboxes)
+
+        detect_failed_box = []
+        detect_missed_box = []
+        detect_missed_box_idx = np.zeros(gtsize[ 0 ])
+
+        for rt in rtboxes:
+            for idx, gt in zip(range(gtsize[ 0 ]), gtboxes):
+                
+                if rt.iou(gt) > 0.5:
+                    detect_missed_box_idx[ idx ] = 1
+
+                    if rt.label != gt.label:
+
+                        detect_failed_box.append(rt)
+                        break
+        
+        detect_missed_box.append(Box((" 0 ", 0, 0, 0, 0, 0)))
+        for i in range(gtsize[ 0 ]):
+            if detect_missed_box_idx[ i ] == 0: # a missed gt box
+                detect_missed_box.append(gtboxes[ i ])
+
+        print "------- Error Detect -------"
+        for box in detect_failed_box:
+            print box.outStr()
+
+        print "------- Miss Detect -------"
+        for box in detect_missed_box:
+            print box.outStr()
 
 
 
 if __name__ == '__main__':
     filepath = sys.argv[1]
-    ImgAna(filepath)
-    # BboxAna(filepath)
+    sav_log = sys.argv[2]
+    # ImgAna(filepath)
+    BboxAna(filepath)
+    ErrorAna(filepath, sav_log)
 
 
 
