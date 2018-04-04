@@ -187,36 +187,44 @@ def BboxAna(filepath):
     print "Height scale distribution: ", height_count
 
 
-    # fig,(ax0, ax1, ax2) = plt.subplots(nrows=3)  
-    # # plt.subplots(nrows=3,figsize=(9,6)) 
-    # ax0.scatter(bboxWidth, bboxHeight)
-    # # plt.title("bbox size distribution")
-    # plt.xlabel("bbox width (Unit: pixel)")
-    # plt.ylabel("bbox height (Unit: pixel)")
-    # plt.xlim(0, 2000)
-    # plt.ylim(0, 2000)
-    # # plt.legend(loc = 'upper right')
-    # plt.savefig('BboxSizeInfo.pdf',dpi=150)
+    # fig,(ax0, ax1) = plt.subplots(nrows=2)  
+    # plt.subplots(nrows=3,figsize=(9,6)) 
 
-    # ax1.scatter(bboxCenterx, bboxCentery)
-    # # plt.title("bbox size distribution")
-    # plt.xlabel("bbox center location (Unit: pixel)")
-    # plt.ylabel("bbox center location (Unit: pixel)")
-    # plt.xlim(0, 1000)
-    # plt.ylim(0, 1000)
-    # # plt.legend(loc = 'upper right')
-    # plt.savefig('BboxCenterInfo.pdf',dpi=150)
 
-    # # ax2.hist(bboxScaleRatio,40,normed=1,histtype='bar',facecolor='yellowgreen',alpha=0.75)  
-    # plt.hist(bboxScaleRatio,40,normed=1,histtype='bar',facecolor='yellowgreen',alpha=0.75)  
-    # # plt.title("bbox scale distribution")
-    # # plt.xlabel("bbox width (Unit: pixel)")
-    # # plt.ylabel("bbox height (Unit: pixel)")
-    # # plt.xlim(0, 4000)
-    # # plt.ylim(0, 3000)
-    # plt.legend(loc = 'upper right')
+
+
+    plt.figure(2)
+    plt.scatter(bboxWidth, bboxHeight)
+    plt.title("bbox size distribution")
+    plt.xlabel("bbox width (Unit: pixel)")
+    plt.ylabel("bbox height (Unit: pixel)")
+    plt.xlim(0, 2000)
+    plt.ylim(0, 2000)
+    plt.legend(loc = 'upper right')
+    plt.savefig('BboxSizeInfo.pdf',dpi=150)
+
+    plt.figure(3)
+    plt.scatter(bboxCenterx, bboxCentery)
+    plt.title("bbox center distribution")
+    plt.xlabel("bbox center location (Unit: pixel)")
+    plt.ylabel("bbox center location (Unit: pixel)")
+    plt.xlim(0, 1000)
+    plt.ylim(0, 1000)
     # plt.show()
-    # plt.savefig('BboxScaleInfo.pdf',dpi=150)
+    plt.legend(loc = 'upper right')
+    plt.savefig('BboxCenterInfo.pdf',dpi=150)
+
+    plt.figure(4)
+    # plt.hist(height_count,20,normed=1,histtype='bar',facecolor='yellowgreen',alpha=0.75)  
+    plt.hist(bboxScaleRatio,40,normed=1,histtype='bar',facecolor='yellowgreen',alpha=0.75)  
+    plt.title("bbox scale distribution")
+    plt.xlabel("bbox width (Unit: pixel)")
+    plt.ylabel("bbox height (Unit: pixel)")
+    # plt.xlim(0, 4000)
+    # plt.ylim(0, 3000)
+    plt.legend(loc = 'upper right')
+    # plt.show()
+    plt.savefig('BboxScaleInfo.pdf',dpi=150)
 
 
 def ErrorAna(filepath, sav_log):
@@ -383,9 +391,9 @@ def get_error_box_result(filename):
 if __name__ == '__main__':
     filepath = sys.argv[1]
     sav_log = sys.argv[2]
-    # ImgAna(filepath)
+    ImgAna(filepath)
     BboxAna(filepath)
-    ErrorAna(filepath, sav_log)
+    # ErrorAna(filepath, sav_log)
 
 
 
