@@ -145,10 +145,17 @@ def ImgCrop(filepath, dstpath, crop_num):
             bboxcentery = ymin + (ymax - ymin) / 2
 
 
-            if bboxheight <= 32: # 32 -- a threshold to determine if the box is small
+            # if bboxheight <= 32: # 32 -- a threshold to determine if the box is small, for hard examples
+
+            #     count = count + 1
+            #     crop_ratio = round(random.uniform(0.25, 0.5), 2)
+
+
+            if bboxheight <= 64: # 32 -- a threshold to determine if the box is small, for normal examples
 
                 count = count + 1
-                crop_ratio = round(random.uniform(0.25, 0.5), 2)
+                crop_ratio = round(random.uniform(0.5, 0.75), 2)
+
 
                 newimgwidth = crop_ratio * img_width
                 newimgheight = crop_ratio * img_height

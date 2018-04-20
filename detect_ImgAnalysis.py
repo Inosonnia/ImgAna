@@ -3,7 +3,7 @@ import os, glob
 import sys
 import commands
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import numpy as np
 import string
 import random
@@ -13,6 +13,9 @@ import shutil
 import operator
 import cv2  
 import numpy as np  
+
+from sklearn.cluster import KMeans
+from sklearn.externals import joblib
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -98,6 +101,14 @@ def copy_file_to(srcDir, targdir, fname):
     shutil.copyfile(filepath, dstpath)
 
 
+def SeeAnchorScale(bboxWidth, bboxHeight, bboxScaleRatio):
+
+    s1 = KMeans(n_clusters=3, random_state=0).fit(np.array(bboxWidth).reshape(-1, 1))
+    s2 = KMeans(n_clusters=3, random_state=0).fit(np.array(bboxHeight).reshape(-1, 1))
+    s3 = KMeans(n_clusters=3, random_state=0).fit(np.array(bboxScaleRatio).reshape(-1, 1))
+
+    print s1.cluster_centers_, s2.cluster_centers_, s3.cluster_centers_
+
 
 def ImgAna(filepath):
 
@@ -116,19 +127,19 @@ def ImgAna(filepath):
 
     print np.shape(imgWidth)
 
-    plt.figure(1)
-    plt.scatter(imgWidth, imgHeight)
-    plt.title("Image size distribution")
-    plt.xlabel("Image width (Unit: pixel)")
-    plt.ylabel("Image height (Unit: pixel)")
-    plt.xlim(0, 4000)
-    plt.ylim(0, 3000)
-    plt.legend(loc = 'upper right')
-    # plt.show()
+    # plt.figure(1)
+    # plt.scatter(imgWidth, imgHeight)
+    # plt.title("Image size distribution")
+    # plt.xlabel("Image width (Unit: pixel)")
+    # plt.ylabel("Image height (Unit: pixel)")
+    # plt.xlim(0, 4000)
+    # plt.ylim(0, 3000)
+    # plt.legend(loc = 'upper right')
+    # # plt.show()
 
-    plt.savefig('ImgInfo.pdf',dpi=150)
-    # print imgWidth, imgHeight
-    # image.show() 
+    # plt.savefig('ImgInfo.pdf',dpi=150)
+    # # print imgWidth, imgHeight
+    # # image.show() 
 
 def BboxAna(filepath):
 
@@ -167,7 +178,7 @@ def BboxAna(filepath):
             bboxheight = ymax - ymin
             bboxcenterx = (xmax - xmin) / 2
             bboxcentery = (ymax - ymin) / 2
-            bboxscaleratio = float(bboxwidth) / float(bboxheight)
+            bboxscaleratio = float(bboxheight) / float(bboxwidth)
 
             bboxWidth.append(bboxwidth)
             bboxHeight.append(bboxheight)
@@ -175,9 +186,7 @@ def BboxAna(filepath):
             bboxCentery.append(bboxcentery)
             bboxScaleRatio.append(bboxscaleratio)
 
-
             bbox_height_scale = bboxheight / 16
-
 
             if bbox_height_scale not in height_count:
                 height_count [ bbox_height_scale ] = 1
@@ -187,44 +196,48 @@ def BboxAna(filepath):
     print "Height scale distribution: ", height_count
 
 
+    SeeAnchorScale(bboxWidth, bboxHeight, bboxScaleRatio)
     # fig,(ax0, ax1) = plt.subplots(nrows=2)  
     # plt.subplots(nrows=3,figsize=(9,6)) 
 
 
 
 
-    plt.figure(2)
-    plt.scatter(bboxWidth, bboxHeight)
-    plt.title("bbox size distribution")
-    plt.xlabel("bbox width (Unit: pixel)")
-    plt.ylabel("bbox height (Unit: pixel)")
-    plt.xlim(0, 2000)
-    plt.ylim(0, 2000)
-    plt.legend(loc = 'upper right')
-    plt.savefig('BboxSizeInfo.pdf',dpi=150)
+    # plt.figure(2)
+    # plt.scatter(bboxWidth, bboxHeight)
+    # plt.title("bbox size distribution")
+    # plt.xlabel("bbox width (Unit: pixel)")
+    # plt.ylabel("bbox height (Unit: pixel)")
+    # plt.xlim(0, 2000)
+    # plt.ylim(0, 2000)
+    # plt.legend(loc = 'upper right')
+    # plt.savefig('BboxSizeInfo.pdf',dpi=150)
 
-    plt.figure(3)
-    plt.scatter(bboxCenterx, bboxCentery)
-    plt.title("bbox center distribution")
-    plt.xlabel("bbox center location (Unit: pixel)")
-    plt.ylabel("bbox center location (Unit: pixel)")
-    plt.xlim(0, 1000)
-    plt.ylim(0, 1000)
-    # plt.show()
-    plt.legend(loc = 'upper right')
-    plt.savefig('BboxCenterInfo.pdf',dpi=150)
+    # plt.figure(3)
+    # plt.scatter(bboxCenterx, bboxCentery)
+    # plt.title("bbox center distribution")
+    # plt.xlabel("bbox center location (Unit: pixel)")
+    # plt.ylabel("bbox center location (Unit: pixel)")
+    # plt.xlim(0, 1000)
+    # plt.ylim(0, 1000)
+    # # plt.show()
+    # plt.legend(loc = 'upper right')
+    # plt.savefig('BboxCenterInfo.pdf',dpi=150)
 
-    plt.figure(4)
-    # plt.hist(height_count,20,normed=1,histtype='bar',facecolor='yellowgreen',alpha=0.75)  
-    plt.hist(bboxScaleRatio,40,normed=1,histtype='bar',facecolor='yellowgreen',alpha=0.75)  
-    plt.title("bbox scale distribution")
-    plt.xlabel("bbox width (Unit: pixel)")
-    plt.ylabel("bbox height (Unit: pixel)")
-    # plt.xlim(0, 4000)
-    # plt.ylim(0, 3000)
-    plt.legend(loc = 'upper right')
-    # plt.show()
-    plt.savefig('BboxScaleInfo.pdf',dpi=150)
+    # plt.figure(4)
+    # # plt.hist(height_count,20,normed=1,histtype='bar',facecolor='yellowgreen',alpha=0.75)  
+    # plt.hist(bboxScaleRatio,40,normed=1,histtype='bar',facecolor='yellowgreen',alpha=0.75)  
+    # plt.title("bbox scale distribution")
+    # plt.xlabel("bbox width (Unit: pixel)")
+    # plt.ylabel("bbox height (Unit: pixel)")
+    # # plt.xlim(0, 4000)
+    # # plt.ylim(0, 3000)
+    # plt.legend(loc = 'upper right')
+    # # plt.show()
+    # plt.savefig('BboxScaleInfo.pdf',dpi=150)
+
+
+
 
 
 def ErrorAna(filepath, sav_log):
@@ -283,7 +296,6 @@ def ErrorAna(filepath, sav_log):
 
     print "Err Height scale distribution: ", height_count
 
-
 def WatchSingleImg(filename, evalFlag): # check the img status / bbox status of a single img
     '''
     evalFlag: If evaluation result is needed
@@ -301,8 +313,6 @@ def WatchSingleImg(filename, evalFlag): # check the img status / bbox status of 
 
     if evalFlag == 1:
         get_error_box_result(filename)
-
-
 
 
 def get_error_box_result(filename):
@@ -385,7 +395,6 @@ def get_error_box_result(filename):
         print "------- Miss Detect -------"
         for box in detect_missed_box:
             print box.outStr()
-
 
 
 if __name__ == '__main__':
