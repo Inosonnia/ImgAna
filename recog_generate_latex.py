@@ -5,6 +5,11 @@ import random
 import argparse
 import string
 
+import sys
+
+reload(sys) 
+sys.setdefaultencoding('utf8')
+
 def gen_urls():
     reg_str = 'ABC'
     reg_str = r'[A-Z]\d[A-Z] \d[A-Z]\d'
@@ -61,13 +66,20 @@ def gen_equation_left():
     s = gen_equation_atom()
 
     bracket_num = 10000
+    mid_bracket_num = 10000
+
     if random.choice(range(0, 5)) == 0:
         bracket_num = random.choice(range(0, 3)) - 1
+        mid_bracket_num = random.choice(range(0, 3)) - 1
     for i in range(count_of_operator):
         if bracket_num == i:
             s = '(' + s + random.choice(operator_list) + gen_equation_atom() + ')'
         else:
             s = s + random.choice(operator_list) + gen_equation_atom()
+
+        # if mid_bracket_num == i:
+        s = '[' + s + random.choice(operator_list) + gen_equation_atom() + ']'
+
     return s
 
 def gen_equation_left_with_star_atom():
@@ -121,18 +133,31 @@ def gen_star_equator():
 def gen_equator():
     return random.choice(['=', '>', '≈', '<', '≤', '≥', '≠'])
 
+def gen_miss_equator():
+    return random.choice([u'□'])
+
+
 def gen_latex():
     equation_str = '{0}{1}{2}'
 
     left = gen_equation_left()
     right = gen_equation_atom() # a simple result
 
+    if g_use_unkown == 0:
+        #do nothing
+        pass
+
     if g_use_unkown == 1:
         left = gen_star_equator()
     if g_use_unkown == 2:
         right = '?'
 
-    s = equation_str.format(left, gen_equator(), right)
+    if g_use_miss_opt == 0: 
+        opt = gen_equator()
+    else:
+        opt = gen_miss_equator()
+
+    s = equation_str.format(left, opt, right)
     if g_use_unkown == 3:
         s = equation_str.format(left, '?', right)
 
@@ -197,13 +222,19 @@ if __name__ == '__main__':
         help=("is use unknown or not")
     )
 
+    parser.add_argument(
+        "miss_opt",
+        type = int,
+        help=("is use missed operator or not")
+    )
+
     args = parser.parse_args()
 
     g_total_count = args.total
     g_out_file = args.output_file
     g_use_frac = False
     g_use_unkown = args.unknown
-
+    g_use_miss_opt = args.miss_opt
 
     main()
 

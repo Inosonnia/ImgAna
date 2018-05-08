@@ -199,10 +199,10 @@ def plot_compare_result_with_gt(src_path):
         fig = plt.subplots(nrows=2)  
         mngr = plt.get_current_fig_manager()
         # to put it into the upper left corner for example:
-        mngr.window.setGeometry(50,100,640, 545)
+        # mngr.window.setGeometry(50,100,640, 545)
 
         plt.subplot(1,2,1)
-        plt.title("gt")
+        plt.title("gt: " + imgname)
         plt.imshow(org_img)
 
         currentAxis = plt.gca()
@@ -374,13 +374,13 @@ if __name__ == '__main__':
     #     sys.exit(1)
 
     # os.popen("rm ./dst_path_contain/*.rec")
-    # dt_tagging(src_path)
+    # dt_tagging(src_path1)
     # gt_tagging(src_path1)
 
     if int(flag) == 1:
         plot_compare_result_with_gt(src_path1)
-    if int(flag) == 2:
-        plot_compare_result_with_both(src_path1, src_path2)
+    # if int(flag) == 2:
+    #     plot_compare_result_with_both(src_path1, src_path2)
 
 
 

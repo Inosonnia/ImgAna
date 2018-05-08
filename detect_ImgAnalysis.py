@@ -3,7 +3,6 @@ import os, glob
 import sys
 import commands
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
-#import matplotlib.pyplot as plt
 import numpy as np
 import string
 import random
@@ -12,7 +11,13 @@ import uuid
 import shutil 
 import operator
 import cv2  
-import numpy as np  
+
+import matplotlib
+matplotlib.use('Agg')
+
+from matplotlib import pyplot as plt
+from matplotlib.patches import Rectangle
+import matplotlib.image as mpimg
 
 from sklearn.cluster import KMeans
 from sklearn.externals import joblib
@@ -85,7 +90,6 @@ def writeBoxesToFile(filePath, boxes, tp):
     file_object.writelines(lines)
     file_object.close( )
 
-
 def file_extension(path): 
     return os.path.splitext(path)[1] 
 
@@ -110,14 +114,17 @@ def SeeAnchorScale(bboxWidth, bboxHeight, bboxScaleRatio):
     print s1.cluster_centers_, s2.cluster_centers_, s3.cluster_centers_
 
 
+def CheckLegality(filepath, filename):
+    if not os.path.exists(os.path.join(filepath, filename)):
+        print "These does not exist such a file !"
+        sys.exit(1)
+
 def ImgAna(filepath):
 
     imgWidth = []
     imgHeight = []
     for fname in get_ext_files(filepath, '.jpg'): # only support jpg
-        if not os.path.exists(os.path.join(filepath, file_name(fname) + '.jpg')):
-            print "These does not exist such a img !"
-            sys.exit(1)
+        CheckLegality(filepath, file_name(fname) + '.jpg')
 
         image = Image.open(os.path.join(filepath, file_name(fname) + '.jpg')).convert('RGB')
 
@@ -127,19 +134,19 @@ def ImgAna(filepath):
 
     print np.shape(imgWidth)
 
-    # plt.figure(1)
-    # plt.scatter(imgWidth, imgHeight)
-    # plt.title("Image size distribution")
-    # plt.xlabel("Image width (Unit: pixel)")
-    # plt.ylabel("Image height (Unit: pixel)")
-    # plt.xlim(0, 4000)
-    # plt.ylim(0, 3000)
-    # plt.legend(loc = 'upper right')
-    # # plt.show()
+    plt.figure(1)
+    plt.scatter(imgWidth, imgHeight)
+    plt.title("Image size distribution")
+    plt.xlabel("Image width (Unit: pixel)")
+    plt.ylabel("Image height (Unit: pixel)")
+    plt.xlim(0, 2000)
+    plt.ylim(0, 2000)
+    plt.legend(loc = 'upper right')
+    # plt.show()
 
-    # plt.savefig('ImgInfo.pdf',dpi=150)
-    # # print imgWidth, imgHeight
-    # # image.show() 
+    plt.savefig('ImgInfo.pdf',dpi=150)
+    # print imgWidth, imgHeight
+    # image.show() 
 
 def BboxAna(filepath):
 
@@ -401,7 +408,7 @@ if __name__ == '__main__':
     filepath = sys.argv[1]
     sav_log = sys.argv[2]
     ImgAna(filepath)
-    BboxAna(filepath)
+    # BboxAna(filepath)
     # ErrorAna(filepath, sav_log)
 
 
