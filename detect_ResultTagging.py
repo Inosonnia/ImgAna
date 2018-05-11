@@ -50,8 +50,12 @@ def get_color_list(imgname):
         pltcolor = 'g'
     elif imgname == '6':
         pltcolor = 'b'
-    else:
+    elif imgname == '7':
+        pltcolor = 'c'
+    elif imgname == '8':
         pltcolor = 'y'
+    else:
+        pltcolor = 'k'
     return pltcolor
     # print xx0, yy0, xx1, yy1   
 
@@ -161,6 +165,12 @@ def plot_compare_result_with_gt(src_path):
     # print res_files
 
     for imgname in img_files:
+
+        if '0000103_v3_test_11.jpg' != imgname:
+            print imgname
+            continue
+
+
         org_img = Image.open(os.path.join(img_folder, imgname))
         org_anno = os.path.join(anno_folder, imgname.split(".jpg")[ 0 ] + ".xml")
 
@@ -379,8 +389,8 @@ if __name__ == '__main__':
 
     if int(flag) == 1:
         plot_compare_result_with_gt(src_path1)
-    # if int(flag) == 2:
-    #     plot_compare_result_with_both(src_path1, src_path2)
+    if int(flag) == 2:
+        plot_compare_result_with_both(src_path1, src_path2)
 
 
 
