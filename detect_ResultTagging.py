@@ -166,9 +166,9 @@ def plot_compare_result_with_gt(src_path):
 
     for imgname in img_files:
 
-        if '0000103_v3_test_11.jpg' != imgname:
-            print imgname
-            continue
+        # if '0000103_v3_test_11.jpg' != imgname:
+        #     print imgname
+        #     continue
 
 
         org_img = Image.open(os.path.join(img_folder, imgname))
@@ -228,7 +228,7 @@ def plot_compare_result_with_gt(src_path):
         currentAxis = plt.gca()
         for i in range(len(newxx0)):
 
-            if conf[ i ] > 0.7:
+            if conf[ i ] > 0.5:
                 pltcolor = get_color_list(newnames[ i ])
                 currentAxis.add_patch(Rectangle((newxx0[ i ], newyy0[ i ]), newxx1[ i ] - newxx0[ i ], newyy1[ i ] - newyy0[ i ], alpha=0.2, color = pltcolor))        
                 currentAxis.text(newxx0[ i ], newyy0[ i ], "conf: " + str(conf[ i ]), fontsize = 4)
