@@ -54,6 +54,8 @@ def get_color_list(imgname):
         pltcolor = 'c'
     elif imgname == '8':
         pltcolor = 'y'
+    elif imgname == '9':
+        pltcolor = 'k'
     else:
         pltcolor = 'k'
     return pltcolor
@@ -174,6 +176,8 @@ def plot_compare_result_with_gt(src_path):
         org_img = Image.open(os.path.join(img_folder, imgname))
         org_anno = os.path.join(anno_folder, imgname.split(".jpg")[ 0 ] + ".xml")
 
+        if not os.path.exists(org_anno):
+            continue
         names, xx0, yy0, xx1, yy1 = parse_annotation(org_anno)
 
 
@@ -206,10 +210,11 @@ def plot_compare_result_with_gt(src_path):
                     newxx1.append(float(strs[ 4 ]))
                     newyy1.append(float(strs[ 5 ]))
 
-        fig = plt.subplots(nrows=2)  
+        fig = plt.subplots(nrows=2, figsize=(20, 10))  
         mngr = plt.get_current_fig_manager()
         # to put it into the upper left corner for example:
         # mngr.window.setGeometry(50,100,640, 545)
+
 
         plt.subplot(1,2,1)
         plt.title("gt: " + imgname)
@@ -328,7 +333,7 @@ def plot_compare_result_with_both(src_path_1, src_path_2):
 
 
 
-        fig = plt.subplots(nrows=3,figsize=(70,20))  
+        fig = plt.subplots(nrows=2, figsize=(20, 10))  
 
         plt.subplot(1,3,1)
         plt.title("gt: " + imgname)
@@ -385,12 +390,12 @@ if __name__ == '__main__':
 
     # os.popen("rm ./dst_path_contain/*.rec")
     # dt_tagging(src_path1)
-    # gt_tagging(src_path1)
+    gt_tagging(src_path1)
 
-    if int(flag) == 1:
-        plot_compare_result_with_gt(src_path1)
-    if int(flag) == 2:
-        plot_compare_result_with_both(src_path1, src_path2)
+    # if int(flag) == 1:
+    #     plot_compare_result_with_gt(src_path1)
+    # if int(flag) == 2:
+    #     plot_compare_result_with_both(src_path1, src_path2)
 
 
 
